@@ -32,7 +32,7 @@ describe('Integration Tests', () => {
       // 4. Create time entry for doing task
       const entry1 = {
         id: 'entry-1', taskId: task1.id, sessionId: timerState.sessionId,
-        startedAt: '2026-02-10T09:00:00Z', endedAt: '2026-02-10T09:15:00Z',
+        startedAt: '2026-02-10T09:00:00', endedAt: '2026-02-10T09:15:00',
       };
       await Storage.saveTaskTimeEntries([entry1]);
 
@@ -43,7 +43,7 @@ describe('Integration Tests', () => {
 
       const entry2 = {
         id: 'entry-2', taskId: task2.id, sessionId: timerState.sessionId,
-        startedAt: '2026-02-10T09:15:00Z', endedAt: '2026-02-10T09:25:00Z',
+        startedAt: '2026-02-10T09:15:00', endedAt: '2026-02-10T09:25:00',
       };
       const entries = await Storage.getTaskTimeEntries();
       entries.push(entry2);
@@ -72,9 +72,9 @@ describe('Integration Tests', () => {
 
       // Track domain visits
       const visits = [
-        { id: '1', sessionId: timerState.sessionId, domain: 'x.com', startedAt: '2026-02-10T09:25:00Z', endedAt: '2026-02-10T09:27:00Z' },
-        { id: '2', sessionId: timerState.sessionId, domain: 'mail.google.com', startedAt: '2026-02-10T09:27:00Z', endedAt: '2026-02-10T09:28:00Z' },
-        { id: '3', sessionId: timerState.sessionId, domain: 'x.com', startedAt: '2026-02-10T09:28:00Z', endedAt: '2026-02-10T09:30:00Z' },
+        { id: '1', sessionId: timerState.sessionId, domain: 'x.com', startedAt: '2026-02-10T09:25:00', endedAt: '2026-02-10T09:27:00' },
+        { id: '2', sessionId: timerState.sessionId, domain: 'mail.google.com', startedAt: '2026-02-10T09:27:00', endedAt: '2026-02-10T09:28:00' },
+        { id: '3', sessionId: timerState.sessionId, domain: 'x.com', startedAt: '2026-02-10T09:28:00', endedAt: '2026-02-10T09:30:00' },
       ];
       await Storage.saveDomainVisits(visits);
 
@@ -96,38 +96,38 @@ describe('Integration Tests', () => {
     beforeEach(async () => {
       // Set up a week's worth of data
       const sessions = [
-        { id: 's1', type: 'focus', status: 'completed', startedAt: '2026-02-09T09:00:00Z', endedAt: '2026-02-09T09:25:00Z', cyclePosition: 1 },
-        { id: 's2', type: 'shortBreak', status: 'completed', startedAt: '2026-02-09T09:30:00Z', endedAt: '2026-02-09T09:35:00Z', cyclePosition: 1 },
-        { id: 's3', type: 'focus', status: 'completed', startedAt: '2026-02-09T09:40:00Z', endedAt: '2026-02-09T10:05:00Z', cyclePosition: 2 },
-        { id: 's4', type: 'focus', status: 'completed', startedAt: '2026-02-10T10:00:00Z', endedAt: '2026-02-10T10:25:00Z', cyclePosition: 1 },
-        { id: 's5', type: 'shortBreak', status: 'completed', startedAt: '2026-02-10T10:30:00Z', endedAt: '2026-02-10T10:35:00Z', cyclePosition: 1 },
+        { id: 's1', type: 'focus', status: 'completed', startedAt: '2026-02-09T09:00:00', endedAt: '2026-02-09T09:25:00', cyclePosition: 1 },
+        { id: 's2', type: 'shortBreak', status: 'completed', startedAt: '2026-02-09T09:30:00', endedAt: '2026-02-09T09:35:00', cyclePosition: 1 },
+        { id: 's3', type: 'focus', status: 'completed', startedAt: '2026-02-09T09:40:00', endedAt: '2026-02-09T10:05:00', cyclePosition: 2 },
+        { id: 's4', type: 'focus', status: 'completed', startedAt: '2026-02-10T10:00:00', endedAt: '2026-02-10T10:25:00', cyclePosition: 1 },
+        { id: 's5', type: 'shortBreak', status: 'completed', startedAt: '2026-02-10T10:30:00', endedAt: '2026-02-10T10:35:00', cyclePosition: 1 },
       ];
       await Storage.saveSessions(sessions);
 
       const tasks = [
-        { id: 't1', title: 'Task 1 #work', tag: 'work', column: 'done', order: 0, createdAt: '2026-02-09T08:00:00Z', completedAt: '2026-02-09T10:00:00Z' },
-        { id: 't2', title: 'Task 2 #learn', tag: 'learn', column: 'done', order: 0, createdAt: '2026-02-10T09:00:00Z', completedAt: '2026-02-10T10:30:00Z' },
+        { id: 't1', title: 'Task 1 #work', tag: 'work', column: 'done', order: 0, createdAt: '2026-02-09T08:00:00', completedAt: '2026-02-09T10:00:00' },
+        { id: 't2', title: 'Task 2 #learn', tag: 'learn', column: 'done', order: 0, createdAt: '2026-02-10T09:00:00', completedAt: '2026-02-10T10:30:00' },
       ];
       await Storage.saveTasks(tasks);
 
       const entries = [
-        { id: 'e1', taskId: 't1', sessionId: 's1', startedAt: '2026-02-09T09:00:00Z', endedAt: '2026-02-09T09:25:00Z' },
-        { id: 'e2', taskId: 't1', sessionId: 's3', startedAt: '2026-02-09T09:40:00Z', endedAt: '2026-02-09T10:05:00Z' },
-        { id: 'e3', taskId: 't2', sessionId: 's4', startedAt: '2026-02-10T10:00:00Z', endedAt: '2026-02-10T10:25:00Z' },
+        { id: 'e1', taskId: 't1', sessionId: 's1', startedAt: '2026-02-09T09:00:00', endedAt: '2026-02-09T09:25:00' },
+        { id: 'e2', taskId: 't1', sessionId: 's3', startedAt: '2026-02-09T09:40:00', endedAt: '2026-02-09T10:05:00' },
+        { id: 'e3', taskId: 't2', sessionId: 's4', startedAt: '2026-02-10T10:00:00', endedAt: '2026-02-10T10:25:00' },
       ];
       await Storage.saveTaskTimeEntries(entries);
 
       const visits = [
-        { id: 'v1', sessionId: 's2', domain: 'x.com', startedAt: '2026-02-09T09:30:00Z', endedAt: '2026-02-09T09:33:00Z' },
-        { id: 'v2', sessionId: 's2', domain: 'gmail.com', startedAt: '2026-02-09T09:33:00Z', endedAt: '2026-02-09T09:35:00Z' },
-        { id: 'v3', sessionId: 's5', domain: 'x.com', startedAt: '2026-02-10T10:30:00Z', endedAt: '2026-02-10T10:33:00Z' },
+        { id: 'v1', sessionId: 's2', domain: 'x.com', startedAt: '2026-02-09T09:30:00', endedAt: '2026-02-09T09:33:00' },
+        { id: 'v2', sessionId: 's2', domain: 'gmail.com', startedAt: '2026-02-09T09:33:00', endedAt: '2026-02-09T09:35:00' },
+        { id: 'v3', sessionId: 's5', domain: 'x.com', startedAt: '2026-02-10T10:30:00', endedAt: '2026-02-10T10:33:00' },
       ];
       await Storage.saveDomainVisits(visits);
     });
 
     test('weekly session stats aggregate correctly', async () => {
       const sessions = await Storage.getSessions();
-      const weekStart = new Date('2026-02-09T00:00:00Z');
+      const weekStart = new Date('2026-02-09T00:00:00');
       const weekEnd = DashboardUtils.getWeekEnd(weekStart);
       const weekSessions = DashboardUtils.filterByDateRange(sessions, 'startedAt', weekStart, weekEnd);
       const stats = DashboardUtils.computeSessionStats(weekSessions);
@@ -141,7 +141,7 @@ describe('Integration Tests', () => {
     test('weekly tag stats aggregate correctly', async () => {
       const entries = await Storage.getTaskTimeEntries();
       const tasks = await Storage.getTasks();
-      const weekStart = new Date('2026-02-09T00:00:00Z');
+      const weekStart = new Date('2026-02-09T00:00:00');
       const weekEnd = DashboardUtils.getWeekEnd(weekStart);
       const weekEntries = DashboardUtils.filterByDateRange(entries, 'startedAt', weekStart, weekEnd);
       const stats = DashboardUtils.computeTagStats(weekEntries, tasks);
@@ -152,7 +152,7 @@ describe('Integration Tests', () => {
 
     test('weekly domain stats aggregate correctly', async () => {
       const visits = await Storage.getDomainVisits();
-      const weekStart = new Date('2026-02-09T00:00:00Z');
+      const weekStart = new Date('2026-02-09T00:00:00');
       const weekEnd = DashboardUtils.getWeekEnd(weekStart);
       const weekVisits = DashboardUtils.filterByDateRange(visits, 'startedAt', weekStart, weekEnd);
       const stats = DashboardUtils.computeDomainStats(weekVisits);
@@ -165,7 +165,7 @@ describe('Integration Tests', () => {
     test('monthly completed tasks grouped by tag', async () => {
       const tasks = await Storage.getTasks();
       const entries = await Storage.getTaskTimeEntries();
-      const monthStart = new Date('2026-02-01T00:00:00Z');
+      const monthStart = new Date('2026-02-01T00:00:00');
       const monthEnd = DashboardUtils.getMonthEnd(monthStart);
 
       const completedInMonth = tasks.filter((t) => {

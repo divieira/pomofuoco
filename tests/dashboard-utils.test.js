@@ -83,11 +83,11 @@ describe('DashboardUtils', () => {
   describe('filterByDateRange', () => {
     test('filters items within range', () => {
       const items = [
-        { startedAt: '2026-02-09T10:00:00Z' },
-        { startedAt: '2026-02-10T10:00:00Z' },
-        { startedAt: '2026-02-11T10:00:00Z' },
+        { startedAt: '2026-02-09T10:00:00' },
+        { startedAt: '2026-02-10T10:00:00' },
+        { startedAt: '2026-02-11T10:00:00' },
       ];
-      const start = new Date('2026-02-09T00:00:00Z');
+      const start = new Date('2026-02-09T00:00:00');
       const end = new Date('2026-02-10T23:59:59Z');
       const result = DashboardUtils.filterByDateRange(items, 'startedAt', start, end);
       expect(result).toHaveLength(2);
@@ -97,15 +97,15 @@ describe('DashboardUtils', () => {
   describe('sumDuration', () => {
     test('sums durations in seconds', () => {
       const items = [
-        { startedAt: '2026-02-10T10:00:00Z', endedAt: '2026-02-10T10:25:00Z' },
-        { startedAt: '2026-02-10T11:00:00Z', endedAt: '2026-02-10T11:25:00Z' },
+        { startedAt: '2026-02-10T10:00:00', endedAt: '2026-02-10T10:25:00' },
+        { startedAt: '2026-02-10T11:00:00', endedAt: '2026-02-10T11:25:00' },
       ];
       expect(DashboardUtils.sumDuration(items, 'startedAt', 'endedAt')).toBe(3000);
     });
 
     test('skips items without endedAt', () => {
       const items = [
-        { startedAt: '2026-02-10T10:00:00Z', endedAt: null },
+        { startedAt: '2026-02-10T10:00:00', endedAt: null },
       ];
       expect(DashboardUtils.sumDuration(items, 'startedAt', 'endedAt')).toBe(0);
     });
@@ -133,9 +133,9 @@ describe('DashboardUtils', () => {
   describe('computeSessionStats', () => {
     test('computes counts and times per type', () => {
       const sessions = [
-        { type: 'focus', status: 'completed', startedAt: '2026-02-10T10:00:00Z', endedAt: '2026-02-10T10:25:00Z' },
-        { type: 'focus', status: 'completed', startedAt: '2026-02-10T11:00:00Z', endedAt: '2026-02-10T11:25:00Z' },
-        { type: 'shortBreak', status: 'completed', startedAt: '2026-02-10T10:25:00Z', endedAt: '2026-02-10T10:30:00Z' },
+        { type: 'focus', status: 'completed', startedAt: '2026-02-10T10:00:00', endedAt: '2026-02-10T10:25:00' },
+        { type: 'focus', status: 'completed', startedAt: '2026-02-10T11:00:00', endedAt: '2026-02-10T11:25:00' },
+        { type: 'shortBreak', status: 'completed', startedAt: '2026-02-10T10:25:00', endedAt: '2026-02-10T10:30:00' },
       ];
       const stats = DashboardUtils.computeSessionStats(sessions);
       expect(stats.focus.count).toBe(2);
@@ -146,7 +146,7 @@ describe('DashboardUtils', () => {
 
     test('skips non-completed sessions', () => {
       const sessions = [
-        { type: 'focus', status: 'running', startedAt: '2026-02-10T10:00:00Z', endedAt: null },
+        { type: 'focus', status: 'running', startedAt: '2026-02-10T10:00:00', endedAt: null },
       ];
       const stats = DashboardUtils.computeSessionStats(sessions);
       expect(stats.focus.count).toBe(0);
@@ -160,9 +160,9 @@ describe('DashboardUtils', () => {
         { id: 't2', tag: 'learn' },
       ];
       const entries = [
-        { taskId: 't1', startedAt: '2026-02-10T10:00:00Z', endedAt: '2026-02-10T10:25:00Z' },
-        { taskId: 't1', startedAt: '2026-02-10T11:00:00Z', endedAt: '2026-02-10T11:10:00Z' },
-        { taskId: 't2', startedAt: '2026-02-10T12:00:00Z', endedAt: '2026-02-10T12:15:00Z' },
+        { taskId: 't1', startedAt: '2026-02-10T10:00:00', endedAt: '2026-02-10T10:25:00' },
+        { taskId: 't1', startedAt: '2026-02-10T11:00:00', endedAt: '2026-02-10T11:10:00' },
+        { taskId: 't2', startedAt: '2026-02-10T12:00:00', endedAt: '2026-02-10T12:15:00' },
       ];
       const stats = DashboardUtils.computeTagStats(entries, tasks);
       expect(stats.work.totalTime).toBe(2100);
@@ -175,9 +175,9 @@ describe('DashboardUtils', () => {
   describe('computeDomainStats', () => {
     test('computes visit counts and times', () => {
       const visits = [
-        { domain: 'x.com', startedAt: '2026-02-10T10:25:00Z', endedAt: '2026-02-10T10:27:00Z' },
-        { domain: 'x.com', startedAt: '2026-02-10T10:28:00Z', endedAt: '2026-02-10T10:29:00Z' },
-        { domain: 'gmail.com', startedAt: '2026-02-10T10:27:00Z', endedAt: '2026-02-10T10:28:00Z' },
+        { domain: 'x.com', startedAt: '2026-02-10T10:25:00', endedAt: '2026-02-10T10:27:00' },
+        { domain: 'x.com', startedAt: '2026-02-10T10:28:00', endedAt: '2026-02-10T10:29:00' },
+        { domain: 'gmail.com', startedAt: '2026-02-10T10:27:00', endedAt: '2026-02-10T10:28:00' },
       ];
       const stats = DashboardUtils.computeDomainStats(visits);
       expect(stats['x.com'].visits).toBe(2);
@@ -189,8 +189,8 @@ describe('DashboardUtils', () => {
   describe('getTimeRange', () => {
     test('returns min/max hours from sessions', () => {
       const sessions = [
-        { startedAt: '2026-02-10T09:30:00Z', endedAt: '2026-02-10T09:55:00Z' },
-        { startedAt: '2026-02-10T14:00:00Z', endedAt: '2026-02-10T14:25:00Z' },
+        { startedAt: '2026-02-10T09:30:00', endedAt: '2026-02-10T09:55:00' },
+        { startedAt: '2026-02-10T14:00:00', endedAt: '2026-02-10T14:25:00' },
       ];
       const range = DashboardUtils.getTimeRange(sessions);
       expect(range.minHour).toBe(9);
@@ -217,9 +217,9 @@ describe('DashboardUtils', () => {
   describe('getTaskWorkingTime', () => {
     test('sums time entries for a task', () => {
       const entries = [
-        { taskId: 't1', startedAt: '2026-02-10T10:00:00Z', endedAt: '2026-02-10T10:25:00Z' },
-        { taskId: 't1', startedAt: '2026-02-10T11:00:00Z', endedAt: '2026-02-10T11:10:00Z' },
-        { taskId: 't2', startedAt: '2026-02-10T12:00:00Z', endedAt: '2026-02-10T12:15:00Z' },
+        { taskId: 't1', startedAt: '2026-02-10T10:00:00', endedAt: '2026-02-10T10:25:00' },
+        { taskId: 't1', startedAt: '2026-02-10T11:00:00', endedAt: '2026-02-10T11:10:00' },
+        { taskId: 't2', startedAt: '2026-02-10T12:00:00', endedAt: '2026-02-10T12:15:00' },
       ];
       expect(DashboardUtils.getTaskWorkingTime('t1', entries)).toBe(2100);
     });
@@ -233,7 +233,7 @@ describe('DashboardUtils', () => {
         { id: 't3', tag: 'learn', column: 'todo', title: 'Task 3', completedAt: null },
       ];
       const entries = [
-        { taskId: 't1', startedAt: '2026-02-10T10:00:00Z', endedAt: '2026-02-10T10:25:00Z' },
+        { taskId: 't1', startedAt: '2026-02-10T10:00:00', endedAt: '2026-02-10T10:25:00' },
       ];
       const result = DashboardUtils.getCompletedTasksByTag(tasks, entries);
       expect(result.work).toHaveLength(2);
