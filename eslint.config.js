@@ -62,16 +62,26 @@ module.exports = [
     rules: { 'no-redeclare': 'off' },
   },
   {
+    files: ['shared/dashboard-utils.js'],
+    rules: { 'no-redeclare': 'off' },
+  },
+  {
     files: ['popup/**/*.js', 'board/**/*.js', 'blocked/**/*.js'],
     languageOptions: {
       globals: {
         Storage: 'readonly',
         CONSTANTS: 'readonly',
         TimerCore: 'readonly',
-        BlockingManager: 'readonly',
-        TrackingManager: 'readonly',
+        DashboardUtils: 'readonly',
+        TaskUtils: 'readonly',
+        initWeekly: 'readonly',
+        initMonthly: 'readonly',
       },
     },
+  },
+  {
+    files: ['board/weekly.js', 'board/monthly.js'],
+    rules: { 'no-redeclare': 'off' },
   },
   {
     files: ['background.js'],

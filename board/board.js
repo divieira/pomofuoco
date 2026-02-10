@@ -639,13 +639,34 @@
     });
   }
 
-  // Placeholder functions for weekly/monthly (will be implemented later)
+  // --- Weekly / Monthly views ---
+  let weeklyView = null;
+  let monthlyView = null;
+
   function loadWeekly() {
-    $('#weeklyContainer').innerHTML = '<p style="color:var(--text-muted);text-align:center;margin-top:var(--space-xl)">Weekly view loading...</p>';
+    if (!weeklyView) {
+      weeklyView = initWeekly(
+        $('#weeklyContainer'),
+        msg,
+        () => settings,
+        () => tasks
+      );
+    } else {
+      weeklyView.render();
+    }
   }
 
   function loadMonthly() {
-    $('#monthlyContainer').innerHTML = '<p style="color:var(--text-muted);text-align:center;margin-top:var(--space-xl)">Monthly view loading...</p>';
+    if (!monthlyView) {
+      monthlyView = initMonthly(
+        $('#monthlyContainer'),
+        msg,
+        () => settings,
+        () => tasks
+      );
+    } else {
+      monthlyView.render();
+    }
   }
 
   // --- Helpers ---
