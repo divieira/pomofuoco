@@ -43,6 +43,16 @@ module.exports = [
     rules: { 'no-redeclare': 'off' },
   },
   {
+    files: ['shared/timer-core.js'],
+    languageOptions: {
+      globals: {
+        CONSTANTS: 'readonly',
+        Storage: 'readonly',
+      },
+    },
+    rules: { 'no-redeclare': 'off' },
+  },
+  {
     files: ['popup/**/*.js', 'board/**/*.js', 'blocked/**/*.js'],
     languageOptions: {
       globals: {
@@ -64,6 +74,7 @@ module.exports = [
         BlockingManager: 'readonly',
         TrackingManager: 'readonly',
         importScripts: 'readonly',
+        Map: 'readonly',
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',
