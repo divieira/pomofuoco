@@ -40,7 +40,10 @@
     const progressEl = $('#timerProgress');
     const doingEl = $('#timerDoingTask');
 
+    const timerBar = $('.timer-bar');
+
     if (timerState.status === 'running') {
+      timerBar.classList.add('running');
       const remaining = TimerCore.getRemaining(timerState);
       const overtime = TimerCore.isOvertime(timerState);
       const elapsed = (Date.now() - new Date(timerState.startedAt).getTime()) / 1000;
@@ -73,6 +76,7 @@
       const doingTask = tasks.find((t) => t.column === 'doing');
       doingEl.textContent = doingTask ? `Working on: ${doingTask.title}` : '';
     } else {
+      timerBar.classList.remove('running');
       timeEl.textContent = '00:00';
       timeEl.classList.remove('overtime');
       labelEl.textContent = 'Ready';

@@ -1,34 +1,67 @@
+/* Pomofuoco Popup — Compact timer widget */
+
 .popup {
   width: 280px;
-  padding: var(--space-md);
+  padding: var(--space-lg) var(--space-md) var(--space-md);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-md);
+  background: linear-gradient(175deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  position: relative;
 }
+
+/* Warm ambient glow at top */
+.popup::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 100px;
+  background: radial-gradient(ellipse, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Header ── */
 
 .popup-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .popup-logo {
-  font-size: var(--font-size-base);
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: -0.5px;
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  background: linear-gradient(135deg, #fb923c 20%, #ef4444 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
 }
 
 .popup-cycle {
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
+  background: var(--bg-card);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
 }
+
+/* ── Timer Display ── */
 
 .popup-timer {
   text-align: center;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .popup-time {
@@ -37,29 +70,29 @@
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
+  letter-spacing: -1px;
 }
 
 .popup-time.overtime {
   color: var(--accent);
-  animation: pulse 1s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  animation: pulse 1.2s ease-in-out infinite;
 }
 
 .popup-label {
+  font-family: var(--font-display);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: var(--space-xs);
+  letter-spacing: 2px;
+  font-weight: 600;
+  margin-top: 6px;
 }
+
+/* ── Progress ── */
 
 .popup-progress-wrap {
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: var(--border-color);
   border-radius: var(--radius-full);
   margin-top: var(--space-sm);
@@ -73,9 +106,17 @@
   transition: width 1s linear;
 }
 
-.popup-progress.focus { background: var(--focus-color); }
-.popup-progress.shortBreak { background: var(--short-break-color); }
-.popup-progress.longBreak { background: var(--long-break-color); }
+.popup-progress.focus {
+  background: linear-gradient(90deg, var(--focus-color), #fb923c);
+}
+.popup-progress.shortBreak {
+  background: linear-gradient(90deg, var(--short-break-color), #7dcea0);
+}
+.popup-progress.longBreak {
+  background: linear-gradient(90deg, var(--long-break-color), #93c5e8);
+}
+
+/* ── Doing Task ── */
 
 .popup-doing {
   font-size: var(--font-size-xs);
@@ -86,18 +127,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  position: relative;
+  z-index: 1;
 }
+
+/* ── Buttons ── */
 
 .popup-buttons {
   display: flex;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .popup-buttons .btn {
   flex: 1;
-  padding: var(--space-sm);
-  font-size: var(--font-size-sm);
+  padding: 10px var(--space-sm);
   text-align: center;
 }
 
@@ -105,29 +151,21 @@
   flex: 1;
 }
 
+/* ── Open Board Link ── */
+
 .popup-link {
+  font-family: var(--font-display);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: all var(--transition-normal);
   cursor: pointer;
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
 .popup-link:hover {
   color: var(--accent);
-}
-
-.hidden { display: none !important; }
-
-/* Suggested button glow */
-.btn.suggested {
-  box-shadow: 0 0 8px rgba(233, 69, 96, 0.4);
-}
-
-.btn-short.suggested {
-  box-shadow: 0 0 8px rgba(78, 205, 196, 0.4);
-}
-
-.btn-long.suggested {
-  box-shadow: 0 0 8px rgba(69, 183, 209, 0.4);
 }
