@@ -53,6 +53,15 @@ module.exports = [
     rules: { 'no-redeclare': 'off' },
   },
   {
+    files: ['shared/task-utils.js'],
+    languageOptions: {
+      globals: {
+        CONSTANTS: 'readonly',
+      },
+    },
+    rules: { 'no-redeclare': 'off' },
+  },
+  {
     files: ['popup/**/*.js', 'board/**/*.js', 'blocked/**/*.js'],
     languageOptions: {
       globals: {
