@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Tomato body -->
+  <circle cx="8" cy="9" r="6.5" fill="#e94560"/>
+  <!-- Stem -->
+  <rect x="7" y="1" width="2" height="3" rx="1" fill="#4a7c59"/>
+  <!-- Leaf -->
+  <ellipse cx="11" cy="3" rx="2.5" ry="1.2" transform="rotate(-30 11 3)" fill="#4a7c59"/>
+  <!-- Subtle highlight -->
+  <ellipse cx="6" cy="7" rx="2" ry="2.5" fill="#ff6b81" opacity="0.35"/>
+</svg>

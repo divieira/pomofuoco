@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pomofuoco - Generate PNG Icons</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 2rem;
+    }
+    h1 { margin-bottom: 0.5rem; color: #e94560; }
+    p.subtitle { margin-bottom: 2rem; color: #999; }
+    .icons {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .icon-card {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .icon-card h2 { font-size: 1rem; color: #ccc; }
+    .preview {
+      background: repeating-conic-gradient(#2a2a4a 0% 25%, #1e1e3a 0% 50%) 0 0 / 16px 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    canvas { image-rendering: pixelated; }
+    button {
+      background: #e94560;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    button:hover { background: #d63050; }
+    #save-all {
+      margin-top: 2rem;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pomofuoco Icon Generator</h1>
+  <p class="subtitle">Renders SVG icons to canvas, then lets you download as PNG for Chrome extension use.</p>
+
+  <div class="icons" id="icons"></div>
+  <button id="save-all">Save All PNGs</button>
+
+  <script>
+    const sizes = [16, 48, 128];
+    const container = document.getElementById('icons');
+
+    /**
+     * Load an SVG file, draw it onto a canvas at the given size,
+     * and return references so we can trigger downloads later.
+     */
+    function createIconCard(size) {
+      const card = document.createElement('div');
+      card.className = 'icon-card';
+
+      const title = document.createElement('h2');
+      title.textContent = `icon${size}.svg  →  icon${size}.png`;
+      card.appendChild(title);
+
+      const preview = document.createElement('div');
+      preview.className = 'preview';
+      // Show the canvas at a comfortable visual size (min 64px)
+      const displaySize = Math.max(size, 64);
+      preview.style.width = `${displaySize + 32}px`;
+      preview.style.height = `${displaySize + 32}px`;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      canvas.style.width = `${displaySize}px`;
+      canvas.style.height = `${displaySize}px`;
+      preview.appendChild(canvas);
+      card.appendChild(preview);
+
+      const btn = document.createElement('button');
+      btn.textContent = `Save icon${size}.png`;
+      btn.addEventListener('click', () => downloadCanvas(canvas, `icon${size}.png`));
+      card.appendChild(btn);
+
+      container.appendChild(card);
+
+      // Render SVG to canvas
+      const img = new Image();
+      img.onload = () => {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, size, size);
+        ctx.drawImage(img, 0, 0, size, size);
+      };
+      img.src = `icon${size}.svg`;
+
+      return canvas;
+    }
+
+    function downloadCanvas(canvas, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    const canvases = sizes.map(s => createIconCard(s));
+
+    document.getElementById('save-all').addEventListener('click', () => {
+      sizes.forEach((size, i) => {
+        // Stagger downloads slightly so browser doesn't block them
+        setTimeout(() => downloadCanvas(canvases[i], `icon${size}.png`), i * 200);
+      });
+    });
+  </script>
+</body>
+</html>

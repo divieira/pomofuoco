@@ -1,0 +1,117 @@
+/* Monthly View */
+
+.monthly-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.monthly-tag-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.monthly-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: var(--space-xl);
+}
+
+.monthly-tag-group {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.monthly-tag-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.monthly-tag-header:hover {
+  background: var(--bg-card);
+}
+
+.monthly-tag-arrow {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  width: 16px;
+  text-align: center;
+  transition: transform var(--transition-fast);
+}
+
+.monthly-tag-name {
+  font-weight: 600;
+  font-size: var(--font-size-base);
+}
+
+.monthly-tag-meta {
+  margin-left: auto;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+.monthly-tag-content {
+  border-top: 1px solid var(--border-color);
+  padding: var(--space-sm);
+}
+
+.monthly-tag-content.hidden {
+  display: none;
+}
+
+.monthly-task-item {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-light);
+  transition: background var(--transition-fast);
+}
+
+.monthly-task-item:last-child {
+  border-bottom: none;
+}
+
+.monthly-task-item:hover {
+  background: var(--bg-card);
+}
+
+.monthly-task-title {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.monthly-task-title:hover {
+  color: var(--accent);
+}
+
+.monthly-task-meta {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.monthly-task-edit {
+  width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-input);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  outline: none;
+}
+
+.monthly-totals {
+  margin-top: var(--space-xl);
+}

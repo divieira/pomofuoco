@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Pomofuoco",
+  "version": "1.0.0",
+  "description": "Pomodoro timer with Kanban board, focus mode, and productivity dashboards",
+  "permissions": [
+    "alarms",
+    "notifications",
+    "storage",
+    "tabs",
+    "idle",
+    "declarativeNetRequest",
+    "activeTab"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.svg",
+      "48": "icons/icon48.svg",
+      "128": "icons/icon128.svg"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  },
+  "declarative_net_request": {
+    "rule_resources": []
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked/blocked.html", "sounds/ding.wav"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
