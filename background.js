@@ -13,7 +13,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
       chrome.notifications.create('pomofuoco-alarm', {
         type: 'basic',
-        iconUrl: 'icons/icon128.png',
+        iconUrl: 'icons/icon128.svg',
         title: 'Pomofuoco',
         message: `${typeLabel} time is up! Click stop when ready.`,
         requireInteraction: true,
