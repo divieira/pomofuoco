@@ -1,3 +1,10 @@
+/* Pomofuoco — Focus Mode Interstitial */
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(175deg, #1f1b18 0%, #161210 50%, #12100e 100%);
+}
+
 .blocked-page {
   display: flex;
   flex-direction: column;
@@ -5,46 +12,131 @@
   justify-content: center;
   min-height: 100vh;
   text-align: center;
-  gap: var(--space-md);
+  gap: var(--space-lg);
   padding: var(--space-xl);
+  position: relative;
 }
 
-.blocked-icon {
-  margin-bottom: var(--space-md);
-  opacity: 0.8;
+/* Warm radial glow behind the flame */
+.blocked-page::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    ellipse,
+    rgba(249, 115, 22, 0.08) 0%,
+    rgba(239, 108, 53, 0.03) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
 }
+
+/* ── Flame icon ── */
+
+.blocked-flame-wrap {
+  position: relative;
+  width: 80px;
+  height: 100px;
+  margin-bottom: var(--space-sm);
+}
+
+.blocked-flame {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 70px;
+  background: radial-gradient(
+    ellipse at 50% 85%,
+    #fbbf24 0%,
+    #f97316 35%,
+    #ef4444 65%,
+    transparent 85%
+  );
+  border-radius: 50% 50% 50% 50% / 60% 60% 35% 35%;
+  animation: flicker 2s ease-in-out infinite;
+  filter: blur(1px);
+}
+
+/* Inner flame — brighter core */
+.blocked-flame::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
+  height: 38px;
+  background: radial-gradient(
+    ellipse at 50% 80%,
+    #fef3c7 0%,
+    #fbbf24 50%,
+    transparent 85%
+  );
+  border-radius: 50% 50% 50% 50% / 60% 60% 35% 35%;
+  animation: flicker 1.6s ease-in-out infinite reverse;
+  filter: blur(0.5px);
+}
+
+/* ── Text ── */
 
 h1 {
+  font-family: var(--font-display);
   font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--accent);
+  font-weight: 800;
+  background: linear-gradient(135deg, #fb923c 20%, #ef4444 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
 }
 
 p {
   font-size: var(--font-size-lg);
   color: var(--text-secondary);
-  max-width: 400px;
+  max-width: 380px;
+  line-height: 1.6;
+  position: relative;
 }
 
 .blocked-hint {
+  font-family: var(--font-display);
   font-size: var(--font-size-sm);
   color: var(--text-muted);
   font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
+/* ── Back button ── */
+
 .btn-back {
-  margin-top: var(--space-lg);
+  margin-top: var(--space-md);
   padding: var(--space-sm) var(--space-xl);
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-primary);
+  font-family: var(--font-display);
   font-size: var(--font-size-base);
+  font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-normal);
+  position: relative;
 }
 
 .btn-back:hover {
   background: var(--bg-card-hover);
-  border-color: var(--text-muted);
+  border-color: rgba(180, 154, 122, 0.20);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-back:active {
+  transform: translateY(0) scale(0.98);
 }

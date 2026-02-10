@@ -1,4 +1,4 @@
-/* Monthly View */
+/* Pomofuoco — Monthly Dashboard View */
 
 .monthly-header {
   display: flex;
@@ -19,13 +19,19 @@
   color: var(--text-muted);
   font-style: italic;
   padding: var(--space-xl);
+  font-size: var(--font-size-sm);
 }
 
 .monthly-tag-group {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  transition: border-color var(--transition-normal);
+}
+
+.monthly-tag-group:hover {
+  border-color: rgba(180, 154, 122, 0.15);
 }
 
 .monthly-tag-header {
@@ -34,7 +40,7 @@
   gap: var(--space-sm);
   padding: var(--space-md);
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-normal);
 }
 
 .monthly-tag-header:hover {
@@ -46,23 +52,26 @@
   color: var(--text-muted);
   width: 16px;
   text-align: center;
-  transition: transform var(--transition-fast);
+  transition: transform var(--transition-normal);
 }
 
 .monthly-tag-name {
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: var(--font-size-base);
 }
 
 .monthly-tag-meta {
   margin-left: auto;
-  font-size: var(--font-size-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
 }
 
 .monthly-tag-content {
   border-top: 1px solid var(--border-color);
   padding: var(--space-sm);
+  animation: fadeIn 0.2s ease-out;
 }
 
 .monthly-tag-content.hidden {
@@ -81,6 +90,7 @@
 
 .monthly-task-item:hover {
   background: var(--bg-card);
+  border-radius: var(--radius-sm);
 }
 
 .monthly-task-title {
@@ -89,6 +99,7 @@
   color: var(--text-primary);
   cursor: pointer;
   padding: 2px 0;
+  transition: color var(--transition-fast);
 }
 
 .monthly-task-title:hover {
@@ -96,7 +107,8 @@
 }
 
 .monthly-task-meta {
-  font-size: var(--font-size-xs);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
   color: var(--text-muted);
   margin-top: 2px;
 }
@@ -105,11 +117,12 @@
   width: 100%;
   padding: var(--space-xs) var(--space-sm);
   background: var(--bg-input);
-  border: 1px solid var(--accent);
+  border: 1px solid rgba(249, 115, 22, 0.40);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: var(--font-size-sm);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.06);
 }
 
 .monthly-totals {

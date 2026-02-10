@@ -9,16 +9,13 @@
 </head>
 <body>
   <div class="blocked-page">
-    <div class="blocked-icon">
-      <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-        <circle cx="40" cy="40" r="35" stroke="var(--accent)" stroke-width="4"/>
-        <line x1="16" y1="16" x2="64" y2="64" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
-      </svg>
+    <div class="blocked-flame-wrap">
+      <div class="blocked-flame"></div>
     </div>
-    <h1>You're in Focus Mode</h1>
-    <p>This site is blocked while your focus timer is running.</p>
-    <p class="blocked-hint">Stay focused — you've got this!</p>
-    <button class="btn btn-back" id="btnGoBack">Go Back</button>
+    <h1>Stay Focused</h1>
+    <p>This site is on pause while your timer is running.</p>
+    <p class="blocked-hint">Deep breath — you're doing great.</p>
+    <button class="btn-back" id="btnGoBack">Go Back</button>
   </div>
   <script>
     document.getElementById('btnGoBack').addEventListener('click', () => {
