@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomofuoco</title>
+  <link rel="stylesheet" href="../shared/theme.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup">
+    <div class="popup-header">
+      <span class="popup-logo">Pomofuoco</span>
+      <span class="popup-cycle" id="popupCycle"></span>
+    </div>
+
+    <div class="popup-timer">
+      <div class="popup-time" id="popupTime">00:00</div>
+      <div class="popup-label" id="popupLabel">Ready</div>
+      <div class="popup-progress-wrap">
+        <div class="popup-progress" id="popupProgress"></div>
+      </div>
+    </div>
+
+    <div class="popup-doing" id="popupDoing"></div>
+
+    <div class="popup-buttons" id="popupIdleButtons">
+      <button class="btn btn-focus" id="popupBtnFocus">Focus</button>
+      <button class="btn btn-short" id="popupBtnShort">Short</button>
+      <button class="btn btn-long" id="popupBtnLong">Long</button>
+    </div>
+
+    <div class="popup-buttons hidden" id="popupRunningButtons">
+      <button class="btn btn-stop" id="popupBtnStop">Stop</button>
+    </div>
+
+    <a class="popup-link" id="popupOpenBoard">Open Board</a>
+  </div>
+
+  <script src="../shared/constants.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="../shared/timer-core.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
