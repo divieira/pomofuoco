@@ -63,6 +63,11 @@ const chrome = {
       removeListener: jest.fn(),
     },
     getURL: jest.fn((path) => `chrome-extension://mock-id/${path}`),
+    getContexts: jest.fn(() => Promise.resolve([])),
+  },
+
+  offscreen: {
+    createDocument: jest.fn(() => Promise.resolve()),
   },
 
   tabs: {
