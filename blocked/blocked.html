@@ -20,14 +20,6 @@
     <p class="blocked-hint">Stay focused — you've got this!</p>
     <button class="btn btn-back" id="btnGoBack">Go Back</button>
   </div>
-  <script>
-    document.getElementById('btnGoBack').addEventListener('click', () => {
-      if (history.length > 1) {
-        history.back();
-      } else {
-        window.close();
-      }
-    });
-  </script>
+  <script src="blocked.js"></script>
 </body>
 </html>

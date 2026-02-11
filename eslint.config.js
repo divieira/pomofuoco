@@ -11,6 +11,7 @@ module.exports = [
         console: 'readonly',
         document: 'readonly',
         window: 'readonly',
+        history: 'readonly',
         navigator: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
