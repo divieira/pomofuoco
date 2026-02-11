@@ -75,7 +75,7 @@ async function activateBlocking() {
       redirect: { extensionPath: '/blocked/blocked.html' },
     },
     condition: {
-      urlFilter: `||${domain}`,
+      requestDomains: [domain],
       resourceTypes: ['main_frame'],
     },
   }));
