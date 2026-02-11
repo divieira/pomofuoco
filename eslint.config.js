@@ -118,6 +118,8 @@ module.exports = [
         jest: 'readonly',
         global: 'readonly',
         process: 'readonly',
+        resetChromeStorage: 'readonly',
+        setChromeStorage: 'readonly',
       },
     },
   },

@@ -3,6 +3,28 @@
 
 importScripts('shared/constants.js', 'shared/storage.js', 'shared/timer-core.js');
 
+// --- Notification Sound ---
+async function playNotificationSound() {
+  const offscreenUrl = chrome.runtime.getURL('offscreen/offscreen.html');
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT'],
+    documentUrls: [offscreenUrl],
+  });
+
+  if (existingContexts.length === 0) {
+    await chrome.offscreen.createDocument({
+      url: offscreenUrl,
+      reasons: ['AUDIO_PLAYBACK'],
+      justification: 'Play timer notification sound',
+    });
+  }
+
+  chrome.runtime.sendMessage({
+    action: 'playSound',
+    source: chrome.runtime.getURL('sounds/ding.wav'),
+  });
+}
+
 // --- Alarm Handler ---
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === CONSTANTS.ALARM_NAME) {
@@ -13,11 +35,14 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
       chrome.notifications.create('pomofuoco-alarm', {
         type: 'basic',
-        iconUrl: 'icons/icon128.svg',
+        iconUrl: 'icons/icon128.png',
         title: 'Pomofuoco',
         message: `${typeLabel} time is up! Click stop when ready.`,
         requireInteraction: true,
+        silent: true,
       });
+
+      playNotificationSound();
 
       // Update badge to show overtime
       chrome.action.setBadgeText({ text: '!' });
