@@ -170,6 +170,75 @@ describe('Focus Mode Blocking', () => {
     });
   });
 
+  describe('onUpdated fallback listener', () => {
+    test('registers onUpdated listener when blocking activates', async () => {
+      chrome.tabs.onUpdated.addListener.mockClear();
+
+      await activateBlocking();
+
+      expect(chrome.tabs.onUpdated.addListener).toHaveBeenCalledTimes(1);
+      expect(chrome.tabs.onUpdated.addListener).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    test('does not register listener when no blocked domains', async () => {
+      await Storage.saveSettings({ blockedDomains: [], tags: {} });
+      chrome.tabs.onUpdated.addListener.mockClear();
+
+      await activateBlocking();
+
+      expect(chrome.tabs.onUpdated.addListener).not.toHaveBeenCalled();
+    });
+
+    test('fallback listener redirects new tab navigating to blocked domain', async () => {
+      await activateBlocking();
+
+      const listener = chrome.tabs.onUpdated.addListener.mock.calls[0][0];
+      chrome.tabs.update.mockClear();
+
+      // Simulate a tab navigating to x.com
+      listener(99, { url: 'https://x.com/home' });
+
+      expect(chrome.tabs.update).toHaveBeenCalledWith(99, {
+        url: expect.stringContaining('blocked/blocked.html'),
+      });
+    });
+
+    test('fallback listener redirects subdomain of blocked domain', async () => {
+      await activateBlocking();
+
+      const listener = chrome.tabs.onUpdated.addListener.mock.calls[0][0];
+      chrome.tabs.update.mockClear();
+
+      listener(99, { url: 'https://www.x.com/feed' });
+
+      expect(chrome.tabs.update).toHaveBeenCalledWith(99, {
+        url: expect.stringContaining('blocked/blocked.html'),
+      });
+    });
+
+    test('fallback listener ignores non-blocked domains', async () => {
+      await activateBlocking();
+
+      const listener = chrome.tabs.onUpdated.addListener.mock.calls[0][0];
+      chrome.tabs.update.mockClear();
+
+      listener(99, { url: 'https://github.com/repo' });
+
+      expect(chrome.tabs.update).not.toHaveBeenCalled();
+    });
+
+    test('fallback listener ignores updates without url change', async () => {
+      await activateBlocking();
+
+      const listener = chrome.tabs.onUpdated.addListener.mock.calls[0][0];
+      chrome.tabs.update.mockClear();
+
+      listener(99, { status: 'loading' });
+
+      expect(chrome.tabs.update).not.toHaveBeenCalled();
+    });
+  });
+
   describe('deactivation', () => {
     test('removes all dynamic rules', async () => {
       chrome.declarativeNetRequest.getDynamicRules.mockReturnValue(
@@ -181,6 +250,15 @@ describe('Focus Mode Blocking', () => {
       const call = chrome.declarativeNetRequest.updateDynamicRules.mock.calls[0][0];
       expect(call.removeRuleIds).toEqual([1, 2, 3]);
       expect(call.addRules).toEqual([]);
+    });
+
+    test('removes onUpdated fallback listener', async () => {
+      await activateBlocking();
+      chrome.tabs.onUpdated.removeListener.mockClear();
+
+      await deactivateBlocking();
+
+      expect(chrome.tabs.onUpdated.removeListener).toHaveBeenCalledTimes(1);
     });
   });
 });
