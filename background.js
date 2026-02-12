@@ -85,6 +85,14 @@ chrome.idle.onStateChanged.addListener(async (state) => {
 // --- Tab Blocking ---
 const blockedTabUrls = new Map(); // tabId -> original URL
 
+// In-memory cache for blocking state.  Set by activateBlocking() /
+// deactivateBlocking() so the onUpdated listener can decide synchronously
+// whether to redirect — no async storage reads in the hot path.
+// On SW restart the cache is cold; we hydrate it from storage at the bottom
+// of this file and fall back to async reads until hydration completes.
+let _blockingActive = false;
+let _blockedDomains = [];
+
 function isBlockedUrl(urlString, domains) {
   try {
     const url = new URL(urlString);
@@ -95,24 +103,39 @@ function isBlockedUrl(urlString, domains) {
 }
 
 // Top-level tab listener — persists across service worker restarts.
-// Checks persisted timer state on every URL change so it works even after
-// the SW goes idle and wakes back up (MV3 lifecycle).
+// Uses the in-memory cache for instant blocking; falls back to async
+// storage reads when the cache is cold (after SW restart).
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (!changeInfo.url) return;
   const blockedPageSuffix = 'blocked/blocked.html';
   if (changeInfo.url.includes(blockedPageSuffix)) return;
 
-  Storage.getTimerState().then((timerState) => {
-    if (timerState.status !== 'running' || timerState.type !== 'focus') return;
-
-    Storage.getSettings().then((settings) => {
-      if (isBlockedUrl(changeInfo.url, settings.blockedDomains)) {
-        chrome.tabs.update(tabId, {
-          url: chrome.runtime.getURL('blocked/blocked.html'),
-        });
-      }
+  // Fast path: synchronous check using in-memory cache
+  if (_blockingActive && isBlockedUrl(changeInfo.url, _blockedDomains)) {
+    chrome.tabs.update(tabId, {
+      url: chrome.runtime.getURL('blocked/blocked.html'),
     });
-  });
+    return;
+  }
+
+  // Slow path: cache is cold (SW just restarted) — read from storage
+  if (!_blockingActive) {
+    Storage.getTimerState().then((timerState) => {
+      if (timerState.status !== 'running' || timerState.type !== 'focus') return;
+
+      Storage.getSettings().then((settings) => {
+        // Hydrate cache for subsequent events
+        _blockingActive = true;
+        _blockedDomains = settings.blockedDomains;
+
+        if (isBlockedUrl(changeInfo.url, settings.blockedDomains)) {
+          chrome.tabs.update(tabId, {
+            url: chrome.runtime.getURL('blocked/blocked.html'),
+          });
+        }
+      });
+    });
+  }
 });
 
 async function activateBlocking() {
@@ -121,7 +144,12 @@ async function activateBlocking() {
 
   if (domains.length === 0) return;
 
-  // Create declarativeNetRequest rules
+  // Populate in-memory cache FIRST so the onUpdated listener can start
+  // blocking immediately — even before dNR rules are installed.
+  _blockingActive = true;
+  _blockedDomains = domains;
+
+  // Create declarativeNetRequest rules (primary blocking mechanism)
   const rules = domains.map((domain, index) => ({
     id: index + 1,
     priority: 1,
@@ -156,6 +184,10 @@ async function activateBlocking() {
 }
 
 async function deactivateBlocking() {
+  // Clear in-memory cache immediately
+  _blockingActive = false;
+  _blockedDomains = [];
+
   // Remove all dynamic rules
   const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
   const removeRuleIds = existingRules.map((r) => r.id);
@@ -468,6 +500,19 @@ chrome.runtime.onInstalled?.addListener?.(async () => {
   console.log('Pomofuoco installed');
 });
 
+// --- Hydrate blocking cache on SW startup ---
+// When the service worker restarts (MV3 lifecycle), in-memory state is lost.
+// Eagerly re-populate the blocking cache from storage so the onUpdated
+// listener can perform synchronous checks as soon as possible.
+Storage.getTimerState().then((timerState) => {
+  if (timerState.status === 'running' && timerState.type === 'focus') {
+    Storage.getSettings().then((settings) => {
+      _blockingActive = true;
+      _blockedDomains = settings.blockedDomains;
+    });
+  }
+});
+
 // Export for testing
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -478,5 +523,9 @@ if (typeof module !== 'undefined' && module.exports) {
     openTaskTimeEntry,
     closeTaskTimeEntry,
     closeAllOpenTaskEntries,
+    _resetBlockingCache() {
+      _blockingActive = false;
+      _blockedDomains = [];
+    },
   };
 }

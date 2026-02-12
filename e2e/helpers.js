@@ -122,6 +122,51 @@ async function navigateAndGetUrl(browser, url) {
   return finalUrl;
 }
 
+/**
+ * Disable the onUpdated fallback listener by overriding isBlockedUrl in the
+ * service worker so it always returns false.  This isolates declarativeNetRequest
+ * as the ONLY blocking mechanism — useful for testing whether dNR rules actually
+ * work without the fallback masking failures.
+ */
+async function disableOnUpdatedFallback(workerTarget) {
+  const worker = await workerTarget.worker();
+  await worker.evaluate(() => {
+    self._originalIsBlockedUrl = self.isBlockedUrl;
+    self.isBlockedUrl = () => false;
+  });
+}
+
+/**
+ * Re-enable the onUpdated fallback listener after a dNR-only test.
+ */
+async function enableOnUpdatedFallback(workerTarget) {
+  const worker = await workerTarget.worker();
+  await worker.evaluate(() => {
+    if (self._originalIsBlockedUrl) {
+      self.isBlockedUrl = self._originalIsBlockedUrl;
+      delete self._originalIsBlockedUrl;
+    }
+  });
+}
+
+/**
+ * Navigate to a URL with ONLY declarativeNetRequest active (onUpdated fallback
+ * is temporarily disabled).  Returns the final URL.
+ */
+async function navigateAndGetUrlDnrOnly(browser, workerTarget, url) {
+  await disableOnUpdatedFallback(workerTarget);
+
+  const page = await browser.newPage();
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 }).catch(() => {});
+  await sleep(1000);
+
+  const finalUrl = page.url();
+  await page.close();
+
+  await enableOnUpdatedFallback(workerTarget);
+  return finalUrl;
+}
+
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -133,5 +178,8 @@ module.exports = {
   stopSessionViaPopup,
   getDynamicRules,
   navigateAndGetUrl,
+  navigateAndGetUrlDnrOnly,
+  disableOnUpdatedFallback,
+  enableOnUpdatedFallback,
   sleep,
 };

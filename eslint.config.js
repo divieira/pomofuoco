@@ -148,6 +148,8 @@ module.exports = [
         afterAll: 'readonly',
         afterEach: 'readonly',
         console: 'readonly',
+        self: 'readonly',
+        setTimeout: 'readonly',
       },
     },
   },

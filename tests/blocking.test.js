@@ -11,6 +11,7 @@ global.importScripts = jest.fn();
 const {
   activateBlocking,
   deactivateBlocking,
+  _resetBlockingCache,
 } = require('../background');
 
 // Capture the top-level onUpdated listener that background.js registers at
@@ -20,6 +21,7 @@ const topLevelOnUpdatedListener = chrome.tabs.onUpdated.addListener.mock.calls[0
 describe('Focus Mode Blocking', () => {
   beforeEach(async () => {
     resetChromeStorage();
+    _resetBlockingCache();
     chrome.declarativeNetRequest.updateDynamicRules.mockClear();
     chrome.declarativeNetRequest.getDynamicRules.mockReturnValue(Promise.resolve([]));
     chrome.tabs.query.mockReturnValue(Promise.resolve([]));
@@ -279,6 +281,53 @@ describe('Focus Mode Blocking', () => {
       chrome.tabs.update.mockClear();
       topLevelOnUpdatedListener(99, { url: 'chrome-extension://mock-id/blocked/blocked.html' });
       await new Promise((r) => setTimeout(r, 50));
+
+      expect(chrome.tabs.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('fast path (in-memory cache after activateBlocking)', () => {
+    test('redirects instantly via cache after activateBlocking()', async () => {
+      await activateBlocking();
+      chrome.tabs.update.mockClear();
+
+      // The cache should be populated — redirect happens synchronously
+      topLevelOnUpdatedListener(99, { url: 'https://x.com/home' });
+
+      // No need to await — fast path is synchronous
+      expect(chrome.tabs.update).toHaveBeenCalledWith(99, {
+        url: expect.stringContaining('blocked/blocked.html'),
+      });
+    });
+
+    test('fast path does not redirect after deactivateBlocking()', async () => {
+      await activateBlocking();
+      chrome.declarativeNetRequest.getDynamicRules.mockReturnValue(
+        Promise.resolve([{ id: 1 }, { id: 2 }, { id: 3 }])
+      );
+      await deactivateBlocking();
+      chrome.tabs.update.mockClear();
+
+      topLevelOnUpdatedListener(99, { url: 'https://x.com/home' });
+      await new Promise((r) => setTimeout(r, 50));
+
+      expect(chrome.tabs.update).not.toHaveBeenCalled();
+    });
+
+    test('fast path does not redirect non-blocked domains', async () => {
+      await activateBlocking();
+      chrome.tabs.update.mockClear();
+
+      topLevelOnUpdatedListener(99, { url: 'https://github.com/repo' });
+
+      expect(chrome.tabs.update).not.toHaveBeenCalled();
+    });
+
+    test('fast path does not redirect blocked.html itself', async () => {
+      await activateBlocking();
+      chrome.tabs.update.mockClear();
+
+      topLevelOnUpdatedListener(99, { url: 'chrome-extension://mock-id/blocked/blocked.html' });
 
       expect(chrome.tabs.update).not.toHaveBeenCalled();
     });
