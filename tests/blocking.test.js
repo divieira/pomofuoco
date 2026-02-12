@@ -13,6 +13,10 @@ const {
   deactivateBlocking,
 } = require('../background');
 
+// Capture the top-level onUpdated listener that background.js registers at
+// module load time — before jest.clearAllMocks() wipes mock call history.
+const topLevelOnUpdatedListener = chrome.tabs.onUpdated.addListener.mock.calls[0]?.[0];
+
 describe('Focus Mode Blocking', () => {
   beforeEach(async () => {
     resetChromeStorage();
@@ -170,70 +174,111 @@ describe('Focus Mode Blocking', () => {
     });
   });
 
-  describe('onUpdated fallback listener', () => {
-    test('registers onUpdated listener when blocking activates', async () => {
-      chrome.tabs.onUpdated.addListener.mockClear();
-
-      await activateBlocking();
-
-      expect(chrome.tabs.onUpdated.addListener).toHaveBeenCalledTimes(1);
-      expect(chrome.tabs.onUpdated.addListener).toHaveBeenCalledWith(expect.any(Function));
+  describe('top-level onUpdated fallback listener', () => {
+    test('top-level listener is registered at module load', () => {
+      expect(topLevelOnUpdatedListener).toEqual(expect.any(Function));
     });
 
-    test('does not register listener when no blocked domains', async () => {
-      await Storage.saveSettings({ blockedDomains: [], tags: {} });
-      chrome.tabs.onUpdated.addListener.mockClear();
+    test('top-level listener redirects blocked domain during focus', async () => {
+      await Storage.saveTimerState({
+        status: 'running',
+        type: 'focus',
+        startedAt: new Date().toISOString(),
+        duration: 1500,
+      });
 
-      await activateBlocking();
-
-      expect(chrome.tabs.onUpdated.addListener).not.toHaveBeenCalled();
-    });
-
-    test('fallback listener redirects new tab navigating to blocked domain', async () => {
-      await activateBlocking();
-
-      const listener = chrome.tabs.onUpdated.addListener.mock.calls[0][0];
       chrome.tabs.update.mockClear();
-
-      // Simulate a tab navigating to x.com
-      listener(99, { url: 'https://x.com/home' });
+      topLevelOnUpdatedListener(99, { url: 'https://x.com/home' });
+      await new Promise((r) => setTimeout(r, 50));
 
       expect(chrome.tabs.update).toHaveBeenCalledWith(99, {
         url: expect.stringContaining('blocked/blocked.html'),
       });
     });
 
-    test('fallback listener redirects subdomain of blocked domain', async () => {
-      await activateBlocking();
+    test('top-level listener redirects subdomain of blocked domain', async () => {
+      await Storage.saveTimerState({
+        status: 'running',
+        type: 'focus',
+        startedAt: new Date().toISOString(),
+        duration: 1500,
+      });
 
-      const listener = chrome.tabs.onUpdated.addListener.mock.calls[0][0];
       chrome.tabs.update.mockClear();
-
-      listener(99, { url: 'https://www.x.com/feed' });
+      topLevelOnUpdatedListener(99, { url: 'https://www.x.com/feed' });
+      await new Promise((r) => setTimeout(r, 50));
 
       expect(chrome.tabs.update).toHaveBeenCalledWith(99, {
         url: expect.stringContaining('blocked/blocked.html'),
       });
     });
 
-    test('fallback listener ignores non-blocked domains', async () => {
-      await activateBlocking();
+    test('top-level listener ignores non-blocked domains during focus', async () => {
+      await Storage.saveTimerState({
+        status: 'running',
+        type: 'focus',
+        startedAt: new Date().toISOString(),
+        duration: 1500,
+      });
 
-      const listener = chrome.tabs.onUpdated.addListener.mock.calls[0][0];
       chrome.tabs.update.mockClear();
-
-      listener(99, { url: 'https://github.com/repo' });
+      topLevelOnUpdatedListener(99, { url: 'https://github.com/repo' });
+      await new Promise((r) => setTimeout(r, 50));
 
       expect(chrome.tabs.update).not.toHaveBeenCalled();
     });
 
-    test('fallback listener ignores updates without url change', async () => {
-      await activateBlocking();
+    test('top-level listener ignores blocked domains when not in focus', async () => {
+      await Storage.saveTimerState({ status: 'idle' });
 
-      const listener = chrome.tabs.onUpdated.addListener.mock.calls[0][0];
       chrome.tabs.update.mockClear();
+      topLevelOnUpdatedListener(99, { url: 'https://x.com/home' });
+      await new Promise((r) => setTimeout(r, 50));
 
-      listener(99, { status: 'loading' });
+      expect(chrome.tabs.update).not.toHaveBeenCalled();
+    });
+
+    test('top-level listener ignores blocked domains during break', async () => {
+      await Storage.saveTimerState({
+        status: 'running',
+        type: 'shortBreak',
+        startedAt: new Date().toISOString(),
+        duration: 300,
+      });
+
+      chrome.tabs.update.mockClear();
+      topLevelOnUpdatedListener(99, { url: 'https://x.com/home' });
+      await new Promise((r) => setTimeout(r, 50));
+
+      expect(chrome.tabs.update).not.toHaveBeenCalled();
+    });
+
+    test('top-level listener ignores updates without url change', async () => {
+      await Storage.saveTimerState({
+        status: 'running',
+        type: 'focus',
+        startedAt: new Date().toISOString(),
+        duration: 1500,
+      });
+
+      chrome.tabs.update.mockClear();
+      topLevelOnUpdatedListener(99, { status: 'loading' });
+      await new Promise((r) => setTimeout(r, 50));
+
+      expect(chrome.tabs.update).not.toHaveBeenCalled();
+    });
+
+    test('top-level listener does not redirect blocked.html itself', async () => {
+      await Storage.saveTimerState({
+        status: 'running',
+        type: 'focus',
+        startedAt: new Date().toISOString(),
+        duration: 1500,
+      });
+
+      chrome.tabs.update.mockClear();
+      topLevelOnUpdatedListener(99, { url: 'chrome-extension://mock-id/blocked/blocked.html' });
+      await new Promise((r) => setTimeout(r, 50));
 
       expect(chrome.tabs.update).not.toHaveBeenCalled();
     });
@@ -250,15 +295,6 @@ describe('Focus Mode Blocking', () => {
       const call = chrome.declarativeNetRequest.updateDynamicRules.mock.calls[0][0];
       expect(call.removeRuleIds).toEqual([1, 2, 3]);
       expect(call.addRules).toEqual([]);
-    });
-
-    test('removes onUpdated fallback listener', async () => {
-      await activateBlocking();
-      chrome.tabs.onUpdated.removeListener.mockClear();
-
-      await deactivateBlocking();
-
-      expect(chrome.tabs.onUpdated.removeListener).toHaveBeenCalledTimes(1);
     });
   });
 });

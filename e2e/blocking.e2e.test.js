@@ -355,16 +355,17 @@ describe('Focus Mode Blocking (E2E)', () => {
 
   // ─── No fallback: missing onUpdated listener during focus ────────
 
-  describe('fallback blocking (chrome.tabs.onUpdated during focus)', () => {
+  describe('fallback blocking (top-level chrome.tabs.onUpdated)', () => {
     /**
-     * Focus mode registers a chrome.tabs.onUpdated listener as a fallback
-     * to catch navigations that declarativeNetRequest misses (race
-     * conditions, client-side navigations, etc.)
+     * Focus mode uses a top-level chrome.tabs.onUpdated listener that
+     * persists across service worker restarts (MV3 lifecycle).
+     * It reads blocking state from chrome.storage.local on each URL
+     * change, so it works even if the SW has been idle and restarted.
      */
 
-    test('onBlockedTabUpdated function exists in service worker', async () => {
+    test('isBlockedUrl helper is available in service worker', async () => {
       const worker = await workerTarget.worker();
-      const exists = await worker.evaluate(() => typeof onBlockedTabUpdated);
+      const exists = await worker.evaluate(() => typeof isBlockedUrl);
 
       expect(exists).toBe('function');
     });
