@@ -84,12 +84,39 @@ chrome.idle.onStateChanged.addListener(async (state) => {
 
 // --- Tab Blocking ---
 const blockedTabUrls = new Map(); // tabId -> original URL
+let activeBlockedDomains = []; // domains currently being blocked
+
+function isBlockedUrl(urlString, domains) {
+  try {
+    const url = new URL(urlString);
+    return domains.some((d) => url.hostname === d || url.hostname.endsWith('.' + d));
+  } catch {
+    return false;
+  }
+}
+
+// Fallback listener: catches navigations that declarativeNetRequest misses
+// (race conditions, client-side navigations, etc.)
+function onBlockedTabUpdated(tabId, changeInfo) {
+  if (changeInfo.url && activeBlockedDomains.length > 0) {
+    if (isBlockedUrl(changeInfo.url, activeBlockedDomains)) {
+      chrome.tabs.update(tabId, {
+        url: chrome.runtime.getURL('blocked/blocked.html'),
+      });
+    }
+  }
+}
 
 async function activateBlocking() {
   const settings = await Storage.getSettings();
   const domains = settings.blockedDomains;
 
   if (domains.length === 0) return;
+
+  activeBlockedDomains = domains;
+
+  // Register fallback listener before async rule setup to close the race window
+  chrome.tabs.onUpdated.addListener(onBlockedTabUpdated);
 
   // Create declarativeNetRequest rules
   const rules = domains.map((domain, index) => ({
@@ -116,23 +143,20 @@ async function activateBlocking() {
   // Redirect existing tabs on blocked domains
   const tabs = await chrome.tabs.query({});
   for (const tab of tabs) {
-    if (tab.url) {
-      try {
-        const url = new URL(tab.url);
-        if (domains.some((d) => url.hostname === d || url.hostname.endsWith('.' + d))) {
-          blockedTabUrls.set(tab.id, tab.url);
-          chrome.tabs.update(tab.id, {
-            url: chrome.runtime.getURL('blocked/blocked.html'),
-          });
-        }
-      } catch {
-        // Invalid URL, skip
-      }
+    if (tab.url && isBlockedUrl(tab.url, domains)) {
+      blockedTabUrls.set(tab.id, tab.url);
+      chrome.tabs.update(tab.id, {
+        url: chrome.runtime.getURL('blocked/blocked.html'),
+      });
     }
   }
 }
 
 async function deactivateBlocking() {
+  // Remove fallback listener
+  chrome.tabs.onUpdated.removeListener(onBlockedTabUpdated);
+  activeBlockedDomains = [];
+
   // Remove all dynamic rules
   const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
   const removeRuleIds = existingRules.map((r) => r.id);

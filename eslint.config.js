@@ -133,6 +133,25 @@ module.exports = [
     rules: { 'no-redeclare': 'off' },
   },
   {
+    files: ['e2e/**/*.js', 'jest.e2e.config.js'],
+    languageOptions: {
+      globals: {
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        __dirname: 'readonly',
+        process: 'readonly',
+        describe: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        afterEach: 'readonly',
+        console: 'readonly',
+      },
+    },
+  },
+  {
     files: ['shared/**/*.js'],
     languageOptions: {
       globals: {
